@@ -1,1 +1,1 @@
-rootProject.name = "KSLProjectTemplate"
+rootProject.name = "KSL-Capstone"
