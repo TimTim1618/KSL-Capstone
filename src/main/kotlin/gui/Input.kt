@@ -14,9 +14,11 @@ import kotlin.reflect.jvm.isAccessible
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 
+
 @Composable
 fun InputScreen() {
     val workFolder = "src/main/kotlin/work"
+    // hold list of available model files in work folder
     val modelFiles = remember { mutableStateOf(listModelFiles(workFolder)) }
 
     // Scroll state for the entire input screen
@@ -25,30 +27,37 @@ fun InputScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(scrollState)  // <-- Makes it scrollable
+            .verticalScroll(scrollState)  // make input area scrollable
             .padding(24.dp)
     ) {
+        // make dropdown menu and dynamic input fields
         DynamicModelInputSelector(workFolder, modelFiles.value)
     }
 }
 
-
+// scans the work folder for .kt files
 fun listModelFiles(folderPath: String): List<String> {
     val folder = File(folderPath)
     return if (folder.exists() && folder.isDirectory) {
+        // only files that end with ".kt"
         folder.listFiles { file -> file.isFile && file.extension == "kt" }
             ?.map { it.nameWithoutExtension } ?: emptyList()
     } else emptyList()
 }
 
+
+// dynamic builder
 @Composable
 fun DynamicModelInputSelector(folderPath: String, modelNames: List<String>) {
+    // defaulted to first model in work folder
     var selectedModelName by remember { mutableStateOf(modelNames.firstOrNull() ?: "") }
+    // a map storing the controls/parameters for selected model
     var currentModelControls by remember { mutableStateOf(mapOf<String, Any>()) }
 
     // Update inputs when model selection changes
     LaunchedEffect(selectedModelName) {
         currentModelControls = loadModelControls(selectedModelName)
+        // store globally for model and output
         ModelInputData.currentModelName = selectedModelName
         ModelInputData.parameters = currentModelControls
     }
@@ -60,8 +69,10 @@ fun DynamicModelInputSelector(folderPath: String, modelNames: List<String>) {
     ) {
         Text("Select Model File:", style = MaterialTheme.typography.h6)
         Spacer(modifier = Modifier.height(8.dp))
-
+        //dropdown menu
         var expanded by remember { mutableStateOf(false) }
+
+        // model selection dropdown
         Box {
             Button(onClick = { expanded = true }) {
                 Text(if (selectedModelName.isNotEmpty()) selectedModelName else "No model files found")
@@ -79,11 +90,12 @@ fun DynamicModelInputSelector(folderPath: String, modelNames: List<String>) {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
+        // display the input fields for selected model
         ModelInputPanel(currentModelControls, selectedModelName)
     }
 }
 
+// display editable text fields
 @Composable
 fun ModelInputPanel(controls: Map<String, Any>, modelName: String) {
     val paramStates = remember(controls) {
@@ -97,13 +109,14 @@ fun ModelInputPanel(controls: Map<String, Any>, modelName: String) {
     ) {
         Text("Editing model: $modelName", style = MaterialTheme.typography.h6)
         Spacer(modifier = Modifier.height(16.dp))
-
+        // loop through each model and render a label and input box
         paramStates.forEach { (key, state) ->
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("$key: ", modifier = Modifier.width(150.dp))
+                // text field for the parameter value
                 TextField(
                     value = state.value.toString(),
                     onValueChange = { newVal ->
@@ -123,6 +136,7 @@ fun ModelInputPanel(controls: Map<String, Any>, modelName: String) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // save inputs back to global ModelInputData
         Button(onClick = {
             val updatedParams = paramStates.mapValues { it.value.value }
             ModelInputData.currentModelName = modelName
@@ -134,6 +148,8 @@ fun ModelInputPanel(controls: Map<String, Any>, modelName: String) {
     }
 }
 
+
+// dynamically load a model class
 fun loadModelControls(modelName: String): Map<String, Any> {
     return try {
         val clazz = Class.forName("work.$modelName").kotlin
