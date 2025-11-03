@@ -17,9 +17,10 @@ import GUI.OutputScreen
 
 
 fun main() = application {
+    // create GUI window named ksl gui launcher
     Window(onCloseRequest = ::exitApplication, title = "KSL GUI Launcher") {
+        // initial screen right now is INput screen
         var screen by remember { mutableStateOf("Input") }
-
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
             // Top row of buttons to switch screens
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
