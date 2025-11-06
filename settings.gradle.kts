@@ -15,4 +15,4 @@ plugins {
 include(":app")
 include(":utils")
 
-rootProject.name = "SimulationStudio"  // change name based on file
+rootProject.name = "KSL-GUI"  // change name based on file

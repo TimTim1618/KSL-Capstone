@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm")
+    kotlin("jvm") version "1.9.24"
     application
 }
 
@@ -15,5 +15,5 @@ dependencies {
 }
 
 application {
-    mainClass.set("gui.MainWindow") // Your main class
+    mainClass.set("gui.MainWindow")
 }
