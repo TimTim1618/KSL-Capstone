@@ -1,30 +1,19 @@
 plugins {
-    kotlin("jvm") version "2.2.0"
-    id("org.jetbrains.kotlin.plugin.compose") version "2.2.0"
-    id("org.jetbrains.compose") version "1.7.0-alpha03"
+    kotlin("jvm")
+    application
 }
 
 repositories {
     mavenCentral()
-    google()
 }
 
-group = "org.example"
-version = "1.0-SNAPSHOT"
-
 dependencies {
-    implementation(compose.desktop.currentOs)
-    testImplementation(kotlin("test"))
+    implementation(kotlin("stdlib"))
+    implementation("com.formdev:flatlaf:3.1") // Modern Swing look
+    implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.9.0")
     api(group = "io.github.rossetti", name = "KSLCore", version = "R1.2.5")
 }
 
-compose.desktop {
-    application {
-        mainClass = "Main.kt"
-    }
+application {
+    mainClass.set("gui.MainWindow") // Your main class
 }
-
-kotlin {
-    jvmToolchain(21)
-}
-
