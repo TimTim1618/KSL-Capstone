@@ -139,6 +139,7 @@ class DistributionModeler : JFrame("Distribution Modeler") {
     }
 }
 
+
 fun main() {
     try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()) } catch (e: Exception) {}
     SwingUtilities.invokeLater { DistributionModeler().isVisible = true }
