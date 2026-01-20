@@ -1,48 +1,12 @@
 package simulation
 
-// dynamically load student .jar files
+/**
+ * Minimal runner that executes a SimulationModel.
+ * Expand this later with callbacks, progress updates, threading, etc.
+ */
+class ModelRunner(private val model: SimulationModel) {
 
-import java.io.File
-import java.net.URLClassLoader
-
-
-class ModelRunner {
-
-    // future stuff - upload .jar files
-    fun loadAndRunModel(jarPath: String, className: String, input: SimulationInput): SimulationOutput {
-        val jarFile = File(jarPath)
-        if (!jarFile.exists()) throw IllegalArgumentException("JAR file not found: $jarPath")
-
-        val classLoader = URLClassLoader(arrayOf(jarFile.toURI().toURL()), this::class.java.classLoader)
-        val modelClass = classLoader.loadClass(className)
-        val instance = modelClass.getDeclaredConstructor().newInstance() as SimulationModel
-
-        return instance.run(input)
+    fun run(input: SimulationInput) {
+        model.run(input)
     }
-    fun loadAndRunKotlinFile(ktFilePath: String, className: String, input: SimulationInput): SimulationOutput {
-        val ktFile = File(ktFilePath)
-        if (!ktFile.exists()) throw IllegalArgumentException("Kotlin file not found: $ktFilePath")
-
-        // Temporary folder for compiled classes
-        val outputDir = File("temp_classes")
-        if (!outputDir.exists()) outputDir.mkdir()
-
-        // Compile the Kotlin file using the Kotlin compiler CLI
-        val process = ProcessBuilder(
-            "kotlinc", ktFile.absolutePath,
-            "-d", outputDir.absolutePath
-        ).inheritIO().start()
-
-        val exitCode = process.waitFor()
-        if (exitCode != 0) throw RuntimeException("Kotlin compilation failed for $ktFilePath")
-
-        // Load the compiled class
-        val classLoader = URLClassLoader(arrayOf(outputDir.toURI().toURL()), this::class.java.classLoader)
-        val modelClass = classLoader.loadClass(className)
-        val instance = modelClass.getDeclaredConstructor().newInstance() as SimulationModel
-
-        return instance.run(input)
-    }
-
 }
-
