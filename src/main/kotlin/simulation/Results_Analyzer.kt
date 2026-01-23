@@ -1,8 +1,160 @@
-package simulation
+package gui
 
-class SimulationOutput(
-    private val avg: Double,
-    val histogram: IntArray? = null 
-) {
-    fun average() = avg
+import java.awt.*
+import java.awt.Desktop
+import java.net.URI
+import javax.swing.*
+import javax.swing.border.EmptyBorder
+
+fun main() {
+    SwingUtilities.invokeLater {
+        ResultsAnalyzerFrame().isVisible = true
+    }
+}
+
+class ResultsAnalyzerFrame : JFrame("Results Analyzer") {
+
+    init {
+        defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
+        minimumSize = Dimension(1200, 720)
+        setLocationRelativeTo(null)
+
+        contentPane.layout = BorderLayout(8, 8)
+        (contentPane as JComponent).border = EmptyBorder(8, 8, 8, 8)
+
+        contentPane.add(buildMenuBar(), BorderLayout.NORTH)
+        contentPane.add(buildPlotPanel(), BorderLayout.CENTER)
+    }
+
+    /* =======================
+       Menu Bar
+     ======================= */
+
+    private fun buildMenuBar(): JToolBar {
+        val toolbar = JToolBar().apply {
+            isFloatable = false
+            layout = FlowLayout(FlowLayout.LEFT, 10, 6)
+        }
+
+        toolbar.add(databaseMenu())
+        toolbar.add(simpleButton("SELECT"))
+        toolbar.add(simpleButton("COMPARE"))
+        toolbar.add(simpleButton("REPORTS"))
+        toolbar.add(plotsMenu())
+        toolbar.add(simpleButton("SAVE"))
+        toolbar.add(simpleButton("SETTINGS"))
+        toolbar.add(helpButton())
+
+        return toolbar
+    }
+
+    private fun simpleButton(text: String): JButton =
+        JButton(text).apply {
+            isFocusable = false
+            font = font.deriveFont(Font.PLAIN, 15f)
+            preferredSize = Dimension(120, 28)
+        }
+
+    /* =======================
+       DATABASE Dropdown
+     ======================= */
+
+    private fun databaseMenu(): JButton {
+        val menu = JPopupMenu()
+
+        val experiments = listOf("Exp. 1", "Exp. 2", "Exp. 3")
+
+        experiments.forEach {
+            menu.add(JCheckBoxMenuItem(it))
+        }
+
+        return JButton("DATABASE").apply {
+            isFocusable = false
+            font = font.deriveFont(Font.PLAIN, 15f)
+            preferredSize = Dimension(140, 28)
+            addActionListener {
+                menu.show(this, 0, height)
+            }
+        }
+    }
+
+    /* =======================
+       PLOTS Dropdown
+     ======================= */
+
+    private fun plotsMenu(): JButton {
+        val menu = JPopupMenu()
+
+        menu.add(JRadioButtonMenuItem("Histogram"))
+        menu.add(JRadioButtonMenuItem("Probability Plot"))
+        menu.add(JRadioButtonMenuItem("Density Estimate"))
+
+        return JButton("PLOTS").apply {
+            isFocusable = false
+            font = font.deriveFont(Font.PLAIN, 15f)
+            preferredSize = Dimension(120, 28)
+            addActionListener {
+                menu.show(this, 0, height)
+            }
+        }
+    }
+
+    /* =======================
+       HELP → External Link
+     ======================= */
+
+    private fun helpButton(): JButton =
+        JButton("HELP").apply {
+            isFocusable = false
+            font = font.deriveFont(Font.PLAIN, 15f)
+            preferredSize = Dimension(120, 28)
+            addActionListener {
+                try {
+                    Desktop.getDesktop().browse(
+                        URI("https://rossetti.github.io/KSLBook/")
+                    )
+                } catch (ex: Exception) {
+                    JOptionPane.showMessageDialog(
+                        this,
+                        "Unable to open help page.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                    )
+                }
+            }
+        }
+
+    /* =======================
+       Plot Area + Stats
+     ======================= */
+
+    private fun buildPlotPanel(): JComponent {
+        val panel = JPanel(BorderLayout())
+        panel.border = BorderFactory.createTitledBorder("Results")
+
+        val plotPlaceholder = JPanel().apply {
+            preferredSize = Dimension(700, 450)
+            background = Color.WHITE
+            border = BorderFactory.createLineBorder(Color.DARK_GRAY)
+        }
+
+        panel.add(plotPlaceholder, BorderLayout.CENTER)
+        panel.add(buildStatsBar(), BorderLayout.SOUTH)
+
+        return panel
+    }
+
+    private fun buildStatsBar(): JComponent {
+        val stats = JPanel(FlowLayout(FlowLayout.LEFT, 20, 6))
+        stats.border = EmptyBorder(6, 6, 6, 6)
+
+        //fun stat(label: String) =
+         //   stats.add(JLabel("$label: 00.00"))
+
+        //stat("Mean")
+        //stat("Min")
+        //stat("Max")
+
+        return stats
+    }
 }
