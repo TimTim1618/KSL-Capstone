@@ -1,19 +1,26 @@
+
+// An example gradle build file for a project that depends on the KSL
+
 plugins {
+    `java-library`
     kotlin("jvm") version "2.2.0"
-    application
 }
 
 repositories {
+
     mavenCentral()
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
-    implementation("com.formdev:flatlaf:3.1") // Modern Swing look
-    implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.9.0")
+
+    // next line allows use of KSL libraries within the project
+    // update the release number when new releases become available
     api(group = "io.github.rossetti", name = "KSLCore", version = "R1.2.5")
+  //  api(group = "io.github.rossetti", name = "KSLCore", version = "R1.2.0")
+    testImplementation(kotlin("test"))
+    implementation(kotlin("stdlib-jdk8"))
 }
 
-application {
-    mainClass.set("gui.MainWindow")
+kotlin {
+    jvmToolchain(21)
 }
