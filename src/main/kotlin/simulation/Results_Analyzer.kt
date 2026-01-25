@@ -2,7 +2,10 @@ package gui
 
 import java.awt.*
 import java.awt.Desktop
+import java.io.File
 import java.net.URI
+import java.sql.Connection
+import java.sql.DriverManager
 import javax.swing.*
 import javax.swing.border.EmptyBorder
 
@@ -13,6 +16,9 @@ fun main() {
 }
 
 class ResultsAnalyzerFrame : JFrame("Results Analyzer") {
+
+    private var connection: Connection? = null
+    private var selectedDatabase: File? = null
 
     init {
         defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
@@ -62,18 +68,42 @@ class ResultsAnalyzerFrame : JFrame("Results Analyzer") {
     private fun databaseMenu(): JButton {
         val menu = JPopupMenu()
 
-        val experiments = listOf("Exp. 1", "Exp. 2", "Exp. 3")
-
-        experiments.forEach {
-            menu.add(JCheckBoxMenuItem(it))
-        }
-
         return JButton("DATABASE").apply {
             isFocusable = false
             font = font.deriveFont(Font.PLAIN, 15f)
             preferredSize = Dimension(140, 28)
             addActionListener {
+                // Show popup menu
                 menu.show(this, 0, height)
+
+                // Prompt user to select a database file
+                val chooser = JFileChooser().apply {
+                    dialogTitle = "Select KSL Database"
+                    fileSelectionMode = JFileChooser.FILES_ONLY
+                }
+
+                if (chooser.showOpenDialog(this@ResultsAnalyzerFrame) == JFileChooser.APPROVE_OPTION) {
+                    selectedDatabase = chooser.selectedFile
+                    try {
+                        connection?.close()
+                        connection = DriverManager.getConnection(
+                            "jdbc:sqlite:${selectedDatabase!!.absolutePath}"
+                        )
+                        JOptionPane.showMessageDialog(
+                            this@ResultsAnalyzerFrame,
+                            "Database loaded successfully:\n${selectedDatabase!!.name}",
+                            "Database Loaded",
+                            JOptionPane.INFORMATION_MESSAGE
+                        )
+                    } catch (ex: Exception) {
+                        JOptionPane.showMessageDialog(
+                            this@ResultsAnalyzerFrame,
+                            "Failed to open database:\n${ex.message}",
+                            "Database Error",
+                            JOptionPane.ERROR_MESSAGE
+                        )
+                    }
+                }
             }
         }
     }
@@ -147,14 +177,6 @@ class ResultsAnalyzerFrame : JFrame("Results Analyzer") {
     private fun buildStatsBar(): JComponent {
         val stats = JPanel(FlowLayout(FlowLayout.LEFT, 20, 6))
         stats.border = EmptyBorder(6, 6, 6, 6)
-
-        //fun stat(label: String) =
-         //   stats.add(JLabel("$label: 00.00"))
-
-        //stat("Mean")
-        //stat("Min")
-        //stat("Max")
-
         return stats
     }
 }
