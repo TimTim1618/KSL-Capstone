@@ -8,14 +8,10 @@ import javax.swing.border.TitledBorder
 
 class DistributionModeler : JFrame("Distribution Modeler") {
 
-    // Dynamic UI Components
     private val xAxisLabel = JLabel("", SwingConstants.CENTER)
     private val yAxisLabel = JLabel("", SwingConstants.CENTER)
     private val dataSummaryArea = JTextArea("Waiting for data...")
     private val generalSummaryArea = JTextArea("No results yet.")
-    private val fitLabel = JLabel("Fit: --%", SwingConstants.CENTER)
-
-    // Panel for the graph so we can swap what's inside
     private val graphDisplayArea = JPanel(BorderLayout())
 
     init {
@@ -25,22 +21,16 @@ class DistributionModeler : JFrame("Distribution Modeler") {
         setLocationRelativeTo(null)
         layout = BorderLayout()
 
-        // 1. Classic Menu Bar
         setupMenuBar()
-
-        // 2. Toolbar (Microsoft/Google vibe)
         add(createToolbar(), BorderLayout.NORTH)
 
-        // 3. Main Split Pane
         val mainSplit = JSplitPane(JSplitPane.VERTICAL_SPLIT)
         mainSplit.resizeWeight = 0.7
 
-        // --- Top Section: Visualization ---
         val visualizationPanel = JPanel(BorderLayout(10, 10))
         visualizationPanel.background = Color.WHITE
         visualizationPanel.border = EmptyBorder(20, 20, 20, 20)
 
-        // Axis Labels (Start empty, updated via code)
         xAxisLabel.font = Font("Arial", Font.ITALIC, 14)
         yAxisLabel.font = Font("Arial", Font.ITALIC, 14)
 
@@ -53,20 +43,12 @@ class DistributionModeler : JFrame("Distribution Modeler") {
 
         mainSplit.topComponent = visualizationPanel
 
-        // --- Bottom Section: Triple Panel Results ---
-        val resultsPanel = JPanel(GridLayout(1, 3, 10, 0))
+        val resultsPanel = JPanel(GridLayout(1, 2, 15, 0))
         resultsPanel.border = EmptyBorder(10, 10, 10, 10)
         resultsPanel.preferredSize = Dimension(0, 200)
 
         resultsPanel.add(createScrollableBox("Data", dataSummaryArea))
-        resultsPanel.add(createScrollableBox("Summary", generalSummaryArea)) // Generic title
-
-        val fitPanel = JPanel(GridBagLayout())
-        fitPanel.border = TitledBorder("Analysis Result")
-        fitLabel.font = Font("Segoe UI", Font.BOLD, 32)
-        fitLabel.foreground = Color(0, 51, 153)
-        fitPanel.add(fitLabel)
-        resultsPanel.add(fitPanel)
+        resultsPanel.add(createScrollableBox("Summary", generalSummaryArea))
 
         mainSplit.bottomComponent = resultsPanel
         add(mainSplit, BorderLayout.CENTER)
@@ -74,33 +56,71 @@ class DistributionModeler : JFrame("Distribution Modeler") {
 
     private fun setupMenuBar() {
         val menuBar = JMenuBar()
+
+        // --- FILE MENU ---
         val fileMenu = JMenu("File")
+        fileMenu.add(JMenuItem("New Project"))
         val importItem = JMenuItem("Import Data...")
         importItem.addActionListener { simulateDataImport() }
-
-        fileMenu.add(JMenuItem("New"))
         fileMenu.add(importItem)
+        fileMenu.add(JMenuItem("Save Analysis"))
         fileMenu.addSeparator()
         fileMenu.add(JMenuItem("Exit"))
 
+        // --- EDIT MENU ---
+        val editMenu = JMenu("Edit")
+        editMenu.add(JMenuItem("Undo"))
+        editMenu.add(JMenuItem("Redo"))
+        editMenu.addSeparator()
+        editMenu.add(JMenuItem("Copy Summary Text"))
+        editMenu.add(JMenuItem("Clear All Data"))
+
+        // --- VIEW MENU ---
+        val viewMenu = JMenu("View")
+        viewMenu.add(JCheckBoxMenuItem("Show Gridlines", true))
+        viewMenu.add(JMenuItem("Zoom In"))
+        viewMenu.add(JMenuItem("Zoom Out"))
+        viewMenu.add(JMenuItem("Reset Graph View"))
+
+        // --- FIT MENU (Analysis Specific) ---
+        val fitMenu = JMenu("Fit")
+        fitMenu.add(JMenuItem("Run Auto-Fit"))
+        fitMenu.add(JMenuItem("Chi-Square Test"))
+        fitMenu.add(JMenuItem("Kolmogorov-Smirnov Test"))
+
+        // --- OPTIONS MENU ---
+        val optionsMenu = JMenu("Options")
+        optionsMenu.add(JMenuItem("Color Settings"))
+        optionsMenu.add(JMenuItem("Decimal Precision"))
+        optionsMenu.add(JMenuItem("Preferences"))
+
+        // --- HELP MENU ---
+        val helpMenu = JMenu("Help")
+        helpMenu.add(JMenuItem("Documentation"))
+        helpMenu.add(JMenuItem("Keyboard Shortcuts"))
+        helpMenu.addSeparator()
+        helpMenu.add(JMenuItem("About Distribution Modeler"))
+
         menuBar.add(fileMenu)
-        menuBar.add(JMenu("Edit"))
-        menuBar.add(JMenu("View"))
-        menuBar.add(JMenu("Fit"))
-        menuBar.add(JMenu("Options"))
-        menuBar.add(JMenu("Help"))
+        menuBar.add(editMenu)
+        menuBar.add(viewMenu)
+        menuBar.add(fitMenu)
+        menuBar.add(optionsMenu)
+        menuBar.add(helpMenu)
         jMenuBar = menuBar
     }
 
     private fun createToolbar(): JToolBar {
         val tb = JToolBar()
         tb.isFloatable = false
-        val btns = listOf("New", "Open", "Save", "Run Fit")
+
+        // Removed "Open", kept others
+        val btns = listOf("New", "Save", "Run Fit")
         btns.forEach {
             val b = JButton(it)
             b.isFocusable = false
             tb.add(b)
-            tb.addSeparator()
+            tb.add(Box.createHorizontalStrut(5))
         }
         return tb
     }
@@ -112,33 +132,16 @@ class DistributionModeler : JFrame("Distribution Modeler") {
         return scroll
     }
 
-    /**
-     * Logic to update the UI once data is loaded
-     */
-    private fun updateUI(xName: String, yName: String, dataText: String, summaryText: String, fit: String) {
-        xAxisLabel.text = xName
-        yAxisLabel.text = "<html><body style='text-align:center'>$yName</body></html>"
-        dataSummaryArea.text = dataText
-        generalSummaryArea.text = summaryText
-        fitLabel.text = "Fit: $fit"
-
-        // Refresh layout
+    private fun simulateDataImport() {
+        // This is where we will eventually put the JFileChooser logic
+        xAxisLabel.text = "Intervals"
+        yAxisLabel.text = "<html>Count</html>"
+        dataSummaryArea.text = "Source: external_data.csv\nObservations: 240\nStatus: Loaded"
+        generalSummaryArea.text = "Primary Distribution: Exponential\nMean: 12.5\nVariance: 156.25\nFit Quality: High"
         revalidate()
         repaint()
     }
-
-    private fun simulateDataImport() {
-        // In the future, this would call your Results_Analyzer
-        updateUI(
-            xName = "Observation Range",
-            yName = "Frequency<br>(count)",
-            dataText = "Source: data_sample.csv\nPoints: 1,500\nType: Continuous",
-            summaryText = "Distribution: Normal\nMean: 45.2\nStdDev: 2.1\nVariance: 4.41",
-            fit = "94%"
-        )
-    }
 }
-
 
 fun main() {
     try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()) } catch (e: Exception) {}
