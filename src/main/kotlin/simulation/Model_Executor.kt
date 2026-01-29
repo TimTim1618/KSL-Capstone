@@ -71,37 +71,37 @@ class ModelFrame : JFrame("Model Executor") {
 
     //new run setup layout logic
     private fun buildRunSetupPanel(): JComponent {
-    val outer = JPanel(BorderLayout()).apply{
-        border = TitledBorder("Run Setup")
-    }
-    val form = JPanel(GridBagLayout()).apply{
-        border = EmptyBorder(18, 18, 18, 18)
-    }
-    val gbc = GridBagConstraints().apply {
-        insets = Insets(10, 10, 10, 10)
-        anchor = GridBagConstraints.WEST
-        fill = GridBagConstraints.NONE
-        weightx = 0.0
-        gridy = 0
-    }
+        val outer = JPanel(BorderLayout()).apply{
+            border = TitledBorder("Run Setup")
+        }
+        val form = JPanel(GridBagLayout()).apply{
+            border = EmptyBorder(18, 18, 18, 18)
+        }
+        val gbc = GridBagConstraints().apply {
+            insets = Insets(10, 10, 10, 10)
+            anchor = GridBagConstraints.WEST
+            fill = GridBagConstraints.NONE
+            weightx = 0.0
+            gridy = 0
+        }
 
-    fun addRow(label: String, fieldCols: Int = 18) {
-        gbc. gridx = 0
-        gbc.weightx = 0.0
-        gbc.fill = GridBagConstraints.NONE
-        gbc.anchor = GridBagConstraints.WEST
-        form.add(JLabel(label).apply{ font = font.deriveFont(12f) }, gbc)
+        fun addRow(label: String, fieldCols: Int = 18) {
+            gbc. gridx = 0
+            gbc.weightx = 0.0
+            gbc.fill = GridBagConstraints.NONE
+            gbc.anchor = GridBagConstraints.WEST
+            form.add(JLabel(label).apply{ font = font.deriveFont(12f) }, gbc)
 
-        gbc.gridx = 1
-        gbc.weightx = 1.0
-        gbc.fill = GridBagConstraints.HORIZONTAL
-        gbc.anchor = GridBagConstraints.EAST
-        form.add(JTextField(fieldCols).apply {
-            preferredSize = Dimension(260, 32)
-            minimumSize = Dimension(260, 32)
-        }, gbc)
-        gbc.gridy++
-    }
+            gbc.gridx = 1
+            gbc.weightx = 1.0
+            gbc.fill = GridBagConstraints.HORIZONTAL
+            gbc.anchor = GridBagConstraints.EAST
+            form.add(JTextField(fieldCols).apply {
+                preferredSize = Dimension(260, 32)
+                minimumSize = Dimension(260, 32)
+            }, gbc)
+            gbc.gridy++
+        }
         addRow("Number of Repetitions")
         addRow("Repetition Length")
         addRow("Warm-up")
