@@ -19,6 +19,7 @@ dependencies {
   //  api(group = "io.github.rossetti", name = "KSLCore", version = "R1.2.0")
     testImplementation(kotlin("test"))
     implementation(kotlin("stdlib-jdk8"))
+
 }
 
 kotlin {

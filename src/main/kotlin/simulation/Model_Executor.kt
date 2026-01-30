@@ -1,7 +1,7 @@
 package simulation
 
-import simulation.modelexe.runpanel.KslReflectiveRunService
-import simulation.modelexe.runpanel.RunPanel
+import gui.ResultsAnalyzerFrame
+import simulation.modelexe.runpanel.*
 import java.awt.*
 import javax.swing.*
 import javax.swing.border.EmptyBorder
@@ -22,9 +22,11 @@ class ModelFrame : JFrame("Model Executor") {
         font = Font(Font.MONOSPACED, Font.PLAIN, 12)
     }
 
+    private val editorTabs = JTabbedPane()
+
     init {
         defaultCloseOperation = EXIT_ON_CLOSE
-        minimumSize = Dimension(1200, 720)
+        minimumSize = Dimension(1200, 750)
         setLocationRelativeTo(null)
 
         contentPane.layout = BorderLayout(8, 8)
@@ -32,35 +34,35 @@ class ModelFrame : JFrame("Model Executor") {
 
         contentPane.add(buildHeader(), BorderLayout.NORTH)
 
-        //  Hook your model here
-        val runService = KslReflectiveRunService(
-            buildModel = {
-                // TODO: replace this with actual model class construction.
-                // Example:
-                // return Distribution_Modeler()
-                throw IllegalStateException("Hook buildModel() to return your KSL model instance.")
-            }
+        // --- Run Service (basic demo model for now) ---
+        val runService = KslRepLoopRunService {
+            SimpleKslDemoModel()
+        }
+
+        editorTabs.addTab(
+            "Run Control",
+            RunPanel(runService, consoleArea, errorArea)
         )
 
-        val editorTabs = JTabbedPane().apply {
-            addTab("Run Control", RunPanel(runService, consoleArea, errorArea))
-            addTab("Blank", JPanel())
-        }
-
-        val consoleTabs = JTabbedPane().apply {
-            preferredSize = Dimension(0, 190)
-            addTab("Console", JScrollPane(consoleArea))
-            addTab("Error", JScrollPane(errorArea))
-        }
-
         contentPane.add(
-            JSplitPane(JSplitPane.VERTICAL_SPLIT, editorTabs, consoleTabs).apply {
+            JSplitPane(
+                JSplitPane.VERTICAL_SPLIT,
+                editorTabs,
+                buildConsoleTabs()
+            ).apply {
                 resizeWeight = 0.75
                 dividerSize = 6
             },
             BorderLayout.CENTER
         )
     }
+
+    private fun buildConsoleTabs(): JTabbedPane =
+        JTabbedPane().apply {
+            preferredSize = Dimension(0, 200)
+            addTab("Console", JScrollPane(consoleArea))
+            addTab("Error", JScrollPane(errorArea))
+        }
 
     private fun buildHeader(): JComponent {
         val header = JPanel()
@@ -72,12 +74,41 @@ class ModelFrame : JFrame("Model Executor") {
             infoBar.add(JTextField(10))
         }
         infoBar.add(Box.createHorizontalGlue())
-        infoBar.add(JButton("Attach DB..."))
+
+        val attachDbBtn = JButton("Attach DB...")
+        infoBar.add(attachDbBtn)
 
         val menuRow = JPanel(FlowLayout(FlowLayout.LEFT, 8, 4))
-        listOf("File", "Edit", "Options", "Help", "Input analyzer", "Output analyzer").forEach {
-            menuRow.add(JButton(it))
+
+        val fileBtn = JButton("File")
+        val editBtn = JButton("Edit")
+        val optionsBtn = JButton("Options")
+        val helpBtn = JButton("Help")
+
+        val inputAnalyzerBtn = JButton("Input Analyzer").apply {
+            addActionListener {
+                SwingUtilities.invokeLater {
+                    DistributionModeler().isVisible = true
+                }
+            }
         }
+
+        val outputAnalyzerBtn = JButton("Output Analyzer").apply {
+            addActionListener {
+                SwingUtilities.invokeLater {
+                    ResultsAnalyzerFrame().isVisible = true
+                }
+            }
+        }
+
+        listOf(
+            fileBtn,
+            editBtn,
+            optionsBtn,
+            helpBtn,
+            inputAnalyzerBtn,
+            outputAnalyzerBtn
+        ).forEach { menuRow.add(it) }
 
         header.add(infoBar)
         header.add(menuRow)
