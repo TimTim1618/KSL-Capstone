@@ -24,6 +24,9 @@ class ModelFrame : JFrame("Model Executor") {
 
     private val editorTabs = JTabbedPane()
 
+    // shows what data is currently available from DistributionModeler
+    private val inputStatusLabel = JLabel(InputModelStore.summaryString())
+
     init {
         defaultCloseOperation = EXIT_ON_CLOSE
         minimumSize = Dimension(1200, 750)
@@ -34,8 +37,8 @@ class ModelFrame : JFrame("Model Executor") {
 
         contentPane.add(buildHeader(), BorderLayout.NORTH)
 
-        // --- Run Service (basic demo model for now) ---
         val runService = KslRepLoopRunService {
+            // ✅ this model now consumes InputModelStore.lastData (if present)
             SimpleKslDemoModel()
         }
 
@@ -69,21 +72,21 @@ class ModelFrame : JFrame("Model Executor") {
         header.layout = BoxLayout(header, BoxLayout.Y_AXIS)
 
         val infoBar = JPanel(FlowLayout(FlowLayout.LEFT, 8, 4))
-        listOf("Model:", "Label:", "Experiment:", "Time Unit:", "Default Stream:").forEach {
-            infoBar.add(JLabel(it))
-            infoBar.add(JTextField(10))
-        }
-        infoBar.add(Box.createHorizontalGlue())
+        infoBar.add(JLabel("Active Input:"))
+        infoBar.add(inputStatusLabel)
 
-        val attachDbBtn = JButton("Attach DB...")
-        infoBar.add(attachDbBtn)
+        val refreshBtn = JButton("Refresh").apply {
+            addActionListener {
+                inputStatusLabel.text = InputModelStore.summaryString()
+                consoleArea.append("[UI] Refreshed input status: ${InputModelStore.summaryString()}\n")
+            }
+        }
+        infoBar.add(refreshBtn)
+
+        infoBar.add(Box.createHorizontalGlue())
+        infoBar.add(JButton("Attach DB..."))
 
         val menuRow = JPanel(FlowLayout(FlowLayout.LEFT, 8, 4))
-
-        val fileBtn = JButton("File")
-        val editBtn = JButton("Edit")
-        val optionsBtn = JButton("Options")
-        val helpBtn = JButton("Help")
 
         val inputAnalyzerBtn = JButton("Input Analyzer").apply {
             addActionListener {
@@ -102,10 +105,10 @@ class ModelFrame : JFrame("Model Executor") {
         }
 
         listOf(
-            fileBtn,
-            editBtn,
-            optionsBtn,
-            helpBtn,
+            JButton("File"),
+            JButton("Edit"),
+            JButton("Options"),
+            JButton("Help"),
             inputAnalyzerBtn,
             outputAnalyzerBtn
         ).forEach { menuRow.add(it) }

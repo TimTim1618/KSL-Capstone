@@ -14,6 +14,7 @@ import javax.swing.border.BevelBorder
 import javax.swing.border.EmptyBorder
 import javax.swing.border.TitledBorder
 import javax.swing.filechooser.FileNameExtensionFilter
+import simulation.InputModelStore
 
 class DistributionModeler : JFrame("KSL Distribution Modeler") {
 
@@ -122,6 +123,7 @@ class DistributionModeler : JFrame("KSL Distribution Modeler") {
         val chooser = JFileChooser("src/main/kotlin/ChapterExamples").apply {
             fileFilter = FileNameExtensionFilter("Text Files (*.txt)", "txt")
             isAcceptAllFileFilterUsed = false
+
         }
 
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -130,10 +132,19 @@ class DistributionModeler : JFrame("KSL Distribution Modeler") {
             loadedFile = chooser.selectedFile
             loadedData = KSLFileUtil.scanToArray(loadedFile!!.toPath())
 
+            loadedFile = chooser.selectedFile
+            loadedData = KSLFileUtil.scanToArray(loadedFile!!.toPath())
+            // Bridge: publish dataset to Model Executor
+            InputModelStore.setData(loadedFile!!.name, loadedData!!)
+
+
             statusArea.text = """
                 DATA LOADED
                 File: ${loadedFile!!.name}
                 Records: ${loadedData!!.size}
+                
+                Shared with Model Executor:
+                ${'$'}{InputModelStore.summaryString()}
             """.trimIndent()
 
             updateButtons()
@@ -151,6 +162,9 @@ class DistributionModeler : JFrame("KSL Distribution Modeler") {
         logArea.text = "Results closed."
         consoleArea.text = ""
         closeResultsItem.isEnabled = false
+        //clears the shared data
+        InputModelStore.clear()
+
     }
 
     private fun runHtmlModeling() {
