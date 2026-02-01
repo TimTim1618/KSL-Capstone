@@ -14,7 +14,12 @@ import javax.swing.border.BevelBorder
 import javax.swing.border.EmptyBorder
 import javax.swing.border.TitledBorder
 import javax.swing.filechooser.FileNameExtensionFilter
-import simulation.InputModelStore
+import java.awt.Desktop
+import java.net.URI
+import javax.swing.JMenu
+import javax.swing.JMenuItem
+import javax.swing.JOptionPane
+
 
 class DistributionModeler : JFrame("KSL Distribution Modeler") {
 
@@ -65,9 +70,57 @@ class DistributionModeler : JFrame("KSL Distribution Modeler") {
                 add(JMenuItem("Exit").apply { addActionListener { dispose() } })
             })
             add(JMenu("View"))
-            add(JMenu("Help"))
+            add(JMenu("Help")).apply {
+                add(JMenuItem("Textbook").apply {
+                    addActionListener {
+                        openLink("https://rossetti.github.io/KSLBook/")
+                    }
+                })
+
+                add(JMenuItem("GitHub").apply {
+                    addActionListener {
+                        openLink("https://github.com/TimTim1618/KSL-Capstone")          // Will probably change this link once finished
+                    }
+                })
+
+                add(JMenuItem("User Guide").apply {
+                    addActionListener {
+                        println("Working dir: " + File(".").absolutePath)
+
+                        openPdf("src/main/kotlin/docs/UserGuide.pdf")
+                    }
+                })
+            }
         }
     }
+
+    private fun openLink(url: String) {
+        try {
+            Desktop.getDesktop().browse(URI(url))
+        } catch (e: Exception) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Unable to open link:\n$url",
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+            )
+        }
+    }
+
+    private fun openPdf(path: String) {
+        try {
+            Desktop.getDesktop().open(File(path))
+        } catch (e: Exception) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Could not open user guide.",
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+            )
+        }
+    }
+
+
 
     private fun createToolbar(): JToolBar =
         JToolBar().apply {
