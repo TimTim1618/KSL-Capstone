@@ -8,6 +8,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 import javax.swing.*
 import javax.swing.border.EmptyBorder
+import javax.swing.filechooser.FileNameExtensionFilter
 
 fun main() {
     SwingUtilities.invokeLater {
@@ -43,7 +44,7 @@ class ResultsAnalyzerFrame : JFrame("Results Analyzer") {
         }
 
         toolbar.add(databaseMenu())
-        toolbar.add(simpleButton("SELECT"))
+        toolbar.add(selectMenu())
         toolbar.add(simpleButton("COMPARE"))
         toolbar.add(simpleButton("REPORTS"))
         toolbar.add(plotsMenu())
@@ -107,6 +108,58 @@ class ResultsAnalyzerFrame : JFrame("Results Analyzer") {
             }
         }
     }
+
+    /* =======================
+        SELECT Window
+      ======================= */
+
+    private fun selectMenu(): JButton{
+        val menu = JPopupMenu()
+
+        return JButton("SELECT").apply {
+            isFocusable = false
+            font = font.deriveFont(Font.PLAIN, 15f)
+            preferredSize = Dimension(140, 28)
+            addActionListener{
+                // file menu
+                menu.show(this, 0, height)
+
+                // show files for experiments saved by user
+                val chooser = JFileChooser().apply {
+                    dialogTitle = "Select Experiment .JSON"
+                    fileSelectionMode = JFileChooser.FILES_ONLY
+
+                    // add a .JSON files filter and hide all non-json files
+                    val jsonFilter = FileNameExtensionFilter(".JSON Files (*.json)", "json")
+                    addChoosableFileFilter(jsonFilter)
+                    fileFilter = jsonFilter
+                    isAcceptAllFileFilterUsed = false
+                }
+
+                if (chooser.showOpenDialog(this@ResultsAnalyzerFrame) == JFileChooser.APPROVE_OPTION) {
+                    val selectedFile = chooser.selectedFile
+                    try {
+                        // todo
+
+                        JOptionPane.showMessageDialog(
+                            this@ResultsAnalyzerFrame,
+                            "Experiment loaded successfully:\n${selectedFile.name}",
+                            "Experiment Loaded",
+                            JOptionPane.INFORMATION_MESSAGE
+                        )
+                    } catch (ex: Exception) {
+                        JOptionPane.showMessageDialog(
+                            this@ResultsAnalyzerFrame,
+                            "Failed to open experiment file:\n${selectedFile.name}",
+                            "File Error",
+                            JOptionPane.ERROR_MESSAGE
+                        )
+                    }
+                }
+            }
+        }
+    }
+
 
     /* =======================
        PLOTS Dropdown
