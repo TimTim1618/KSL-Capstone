@@ -139,8 +139,6 @@ class ResultsAnalyzerFrame : JFrame("Results Analyzer") {
                 if (chooser.showOpenDialog(this@ResultsAnalyzerFrame) == JFileChooser.APPROVE_OPTION) {
                     val selectedFile = chooser.selectedFile
                     try {
-                        // todo
-
                         JOptionPane.showMessageDialog(
                             this@ResultsAnalyzerFrame,
                             "Experiment loaded successfully:\n${selectedFile.name}",
